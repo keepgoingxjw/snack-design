@@ -1,11 +1,5 @@
 <view class="page" wx:if="{{record}}">
   <view class="result-head"><view><view class="heading">{{demoMode ? demoTitle : '每种配料，分开看明白'}}</view><text class="small">{{record.kind}} · {{count}} 项配料</text></view><image class="logo" src="/assets/logo.png" mode="aspectFit"/></view>
-  <view wx:if="{{demoMode}}" class="demo-intro">
-    <view class="demo-badge">虚构示例 · 预设演示</view>
-    <view class="small">无需输入、无需登录、无需等待AI。这些是预设的演示配方，不是实时查询或真实商品结论。</view>
-    <view class="demo-selector"><view wx:for="{{demoSamples}}" wx:key="id" class="demo-choice {{demoId === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="switchDemo">{{item.label}} · {{item.count}} 项</view></view>
-    <view class="demo-raw-label">这份示例的配料表</view><view class="demo-raw" selectable="{{true}}">{{record.raw}}</view>
-  </view>
   <view wx:if="{{recommendation}}" class="recommendation {{recommendation.action}}">
     <view class="advice-kicker">最后建议 · {{demoMode ? '预设演示建议' : '条件性指导，非安全判定'}}</view>
     <view class="advice-title">{{recommendation.title}}</view>
@@ -22,7 +16,7 @@
   <view wx:if="{{demoMode}}" class="note">示例未提供添加量与营养成分表，不能评估真实商品的具体营养贡献或风险程度。下方是预设的通用知识文案，不是AI实时生成。</view>
   <view wx:else class="note">未提供添加量及营养成分表，不能评估这包食品的具体营养贡献或风险程度。{{foodCategory ? '按所填食品类别核对用量。' : '未指定食品类别，不提供具体限量。'}} AI 总结未经人工审核。</view>
   <view wx:if="{{busy || loading}}" class="progress"><view class="strong">{{loading ? '正在读取解析…' : '正在检索资料并生成解析…'}}</view><view class="small">完成后会自动显示在下方，无需再次点击查询。免费云端模型可能排队，离开页面后任务仍会继续。</view></view>
-  <view wx:if="{{error}}" class="research-error">{{error}}<button class="secondary" bindtap="refresh">{{busy ? '刷新进度' : '重新加载'}}</button></view>
+  <view wx:if="{{error}}" class="research-error">{{busy ? '暂时没能获取最新进度，解析仍在进行中。可以稍后再查看。' : '这次解析暂时没能完成，稍后再试试吧。你的配料记录已保存，可以晚点回来继续。'}}<button class="secondary" bindtap="refresh">{{busy ? '查看最新进度' : '查看最新结果'}}</button></view>
   <button wx:if="{{!loading && !busy && (!report || report.status === 'failed')}}" class="primary" bindtap="start">{{error ? '重试解析' : '开始解析'}}</button>
   <view wx:if="{{showingHistory}}" class="note">当前为历史快照，可能对应修改前的配料，不表示当前原文的最新解析。</view>
   <block wx:for="{{groups}}" wx:key="id" wx:for-item="group">
@@ -49,6 +43,6 @@
   <view wx:if="{{!demoMode && report && report.status === 'done'}}" class="report-meta">已保存 · {{reportDate}}<view>模型：{{report.model}}</view><view>{{report.disclaimer}}</view></view>
   <view wx:if="{{!demoMode && report}}" class="history-link" bindtap="history">查看历史解析记录 ›</view>
   <view wx:for="{{history}}" wx:key="id" class="history-item" data-id="{{item.id}}" bindtap="historical">{{item.date}} · {{item.label}}</view>
-  <button class="secondary" bindtap="edit" disabled="{{busy}}">{{demoMode ? '我也来解析自己的配料表' : '继续添加 / 修改配料'}}</button>
+  <button wx:if="{{!demoMode}}" class="secondary" bindtap="edit" disabled="{{busy}}">继续添加 / 修改配料</button>
 </view>
 <view wx:else class="page empty">{{loading ? '正在读取记录…' : error || '记录不存在或已删除'}}<button wx:if="{{!loading}}" class="secondary" bindtap="onShow">重新加载</button><button class="secondary" bindtap="home">返回首页</button></view>
