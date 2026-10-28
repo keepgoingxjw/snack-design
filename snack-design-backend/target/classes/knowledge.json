@@ -1,0 +1,47 @@
+[
+  {
+    "name": "燕麦片",
+    "group": "structure",
+    "role": "谷物原料",
+    "benefit": "提供谷物风味、口感及谷物营养。",
+    "risk": "这包食品的纤维含量尚不明确，不能直接当作高纤维食品。需严格避免麸质的人群应核对包装标识。",
+    "source": "烘焙原料教材",
+    "url": "https://opentextbc.ca/ingredients/"
+  },
+  {
+    "name": "小麦粉",
+    "group": "structure",
+    "role": "形成结构",
+    "benefit": "形成烘焙食品的结构与口感，提供碳水化合物。",
+    "risk": "小麦过敏者需避开；需避免麸质的人群应核对产品标识。",
+    "source": "FDA：食物过敏原",
+    "url": "https://www.fda.gov/food/food-labeling-nutrition/food-allergies-what-you-need-know"
+  },
+  {
+    "name": "白砂糖",
+    "group": "flavour",
+    "role": "提供甜味",
+    "benefit": "增加甜味，也影响烘焙色泽与口感；加工用途不代表健康加分。",
+    "risk": "需结合实际含量和食用量关注糖摄入。",
+    "source": "WHO：健康膳食",
+    "url": "https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
+  },
+  {
+    "name": "植物油",
+    "group": "structure",
+    "role": "调整口感",
+    "benefit": "提供脂肪，帮助形成酥松口感；脂肪酸组成取决于具体油种。",
+    "risk": "仅凭名称无法判断脂肪酸组成，需结合营养成分表和食用量。",
+    "source": "WHO：健康膳食",
+    "url": "https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
+  },
+  {
+    "name": "乳粉",
+    "group": "flavour",
+    "role": "增加奶味",
+    "benefit": "增加乳香，也可能提供乳蛋白等营养；实际贡献取决于添加量。",
+    "risk": "牛奶过敏者需避开；乳糖不耐受者需结合乳糖含量和个人耐受情况。",
+    "source": "NIDDK：乳糖不耐受",
+    "url": "https://www.niddk.nih.gov/health-information/digestive-diseases/lactose-intolerance"
+  }
+]

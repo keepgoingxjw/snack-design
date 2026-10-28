@@ -1,0 +1,164 @@
+ Free Variant - Free Model Access 
+ Documentation Index
+ Fetch the complete documentation index at: /docs/llms.txt 
+ Use this file to discover all available pages before exploring further.
+ Skip to main content 
+ OpenRouter | Documentation home page 
+ Search...
+ ⌘ K Ask Assistant ⌘ I 
+ Models 
+ Benchmarks 
+ Chat 
+ Rankings 
+ Apps 
+ Ori 
+ Pricing 
+ Sign In 
+ Sign In 
+ Search... 
+ Navigation 
+ Model Variants 
+ Free Variant
+ Docs 
+ API Reference 
+ Client SDKs 
+ Agent SDK 
+ Cookbook 
+ Overview 
+ Quickstart 
+ Principles 
+ Models 
+ Multimodal 
+ FAQ 
+ Report Feedback 
+ Models & Routing 
+ Model Fallbacks 
+ Provider Selection 
+ Auto Exacto 
+ Private Endpoints 
+ Model Variants 
+ Overview 
+ Free 
+ Extended 
+ Exacto 
+ Thinking 
+ Online 
+ Nitro 
+ Floor 
+ Routers 
+ Tool Calling 
+ Client Tools 
+ Server Tools 
+ Plugins 
+ Features 
+ Workspaces 
+ Notifications 
+ Files Beta 
+ Containers Beta 
+ Presets 
+ Custom Classifiers 
+ Response Caching 
+ Structured Outputs 
+ Message Transforms 
+ Zero Completion Insurance 
+ App Attribution 
+ Batch API 
+ Guardrails 
+ Service Tiers 
+ Router Metadata 
+ Observability 
+ Logs 
+ Activity 
+ Input & Output Logging 
+ Broadcast 
+ Authentication 
+ OAuth 
+ Workload Identity 
+ Management API Keys 
+ Security settings 
+ BYOK 
+ Single Sign-On (SSO) 
+ SCIM Group Mappings 
+ Ori 
+ Ori 
+ Ori Eval 
+ Ori Harness 
+ File Writing 
+ Ori Configuration 
+ Vault Secrets for Interns 
+ Changelog 
+ Developer Tools 
+ MCP 
+ Terraform Provider 
+ Stripe Projects 
+ Privacy 
+ Data Collection 
+ Provider Logging 
+ ZDR 
+ In-Region Routing 
+ Sovereign AI 
+ Best Practices 
+ Latency and Performance 
+ Prompt Caching 
+ Spend Controls 
+ Capping Shared Agent Keys 
+ Uptime Optimization 
+ Reasoning Tokens 
+ Providers 
+ Integration 
+ Traffic Routing 
+ Community 
+ Frameworks and Integrations Overview 
+ Awesome OpenRouter 
+ Effect AI SDK 
+ Arize AX 
+ LangChain 
+ LiveKit 
+ Langfuse 
+ Mastra 
+ OpenAI SDK 
+ Anthropic Agent SDK 
+ PydanticAI 
+ Render 
+ Replit 
+ TanStack AI 
+ Jev (TypeSafe) 
+ Jev Tutorial 
+ Multimodal Decisions 
+ TypeSafe SDK (Jev) 
+ Vercel AI SDK 
+ Xcode 
+ Zapier 
+ Infisical 
+ On this page 
+ Back to top Usage 
+ Details 
+ Related Resources 
+ Model Variants
+ Free Variant
+ Copy page Copy page 
+ Access free models with the :free variant
+ Copy page Copy page 
+ The :free variant allows you to access free versions of models on OpenRouter. 
+ ​ 
+ Usage 
+ Append :free to the ID of a model that has a free entry. :free is a catalog variant , so the free version appears as its own entry in the models API with its own pricing, context length, and endpoints, and only models that list one support it: 
+ { 
+ "model" : "meta-llama/llama-3.2-3b-instruct:free" 
+ } 
+ ​ 
+ Details 
+ Free variants provide access to models without cost, but may have different rate limits or availability compared to paid versions. 
+ Fallbacks to paid models are billed If you list a :free model in a models fallback array , OpenRouter tries the next model in the array when the free model is rate-limited, unavailable, or has no endpoint that supports your request. Each model is billed at its own price, so a fallback to a paid model incurs charges even though the first model was :free . To keep a request free, list only :free models in models , or use the Free Models Router ( openrouter/free ) on its own, which falls back only to other free models. 
+ ​ 
+ Related Resources 
+ Free Models Router - Learn how to use the Free Models Router in the Chat Playground for zero-cost inference
+ Was this page helpful?
+ Yes No 
+ Overview
+ Extended
+ Assistant 
+ Responses are generated using AI and may contain mistakes.
+ Suggestions
+ How do I get started using decision models like Jev? 
+ 

@@ -1,0 +1,7 @@
+com\shiyoushu\snack\ResearchEvidenceTest.class
+com\shiyoushu\snack\ProductionProfileTest.class
+com\shiyoushu\snack\ResearchIntegrationTest.class
+com\shiyoushu\snack\OllamaGatewayTest.class
+com\shiyoushu\snack\ZeroCostPolicyTest.class
+com\shiyoushu\snack\AdvicePolicyTest.class
+com\shiyoushu\snack\ApiIntegrationTest.class

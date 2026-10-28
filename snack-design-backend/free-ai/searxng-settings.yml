@@ -1,0 +1,13 @@
+# 仅供127.0.0.1个人开发，禁止以此配置公开提供搜索服务。
+use_default_settings: true
+server:
+  secret_key: "shiyoushu-local-development-not-for-public-use"
+  bind_address: "0.0.0.0"
+  port: 8080
+  limiter: false
+  image_proxy: false
+search:
+  safe_search: 1
+  formats:
+    - html
+    - json

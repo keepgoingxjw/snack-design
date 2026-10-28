@@ -1,0 +1,7 @@
+{
+  "pages": ["pages/home/home", "pages/edit/edit", "pages/result/result", "pages/history/history", "pages/scan/scan"],
+  "window": { "navigationBarTitleText": "食有数Bite", "navigationBarBackgroundColor": "#fbfaff", "navigationBarTextStyle": "black", "backgroundColor": "#fbfaff" },
+  "tabBar": { "custom": true, "color": "#81738f", "selectedColor": "#725294", "backgroundColor": "#fbfaff", "borderStyle": "white", "list": [{ "pagePath": "pages/home/home", "text": "首页", "iconPath": "assets/tabbar/home.png", "selectedIconPath": "assets/tabbar/home-active.png" }, { "pagePath": "pages/history/history", "text": "记录", "iconPath": "assets/tabbar/history.png", "selectedIconPath": "assets/tabbar/history-active.png" }] },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

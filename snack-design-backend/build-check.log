@@ -1,0 +1,69 @@
+17:53:34.593 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.shiyoushu.snack.ApiIntegrationTest]: ApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:53:34.747 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.shiyoushu.snack.SnackApplication for test class com.shiyoushu.snack.ApiIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.16)
+
+2026-10-28T17:53:35.185+08:00  INFO 1736 --- [           main] com.shiyoushu.snack.ApiIntegrationTest   : Starting ApiIntegrationTest using Java 21.0.12.1 with PID 1736 (started by keepg in D:\wtt\小程序\snack-design-backend)
+2026-10-28T17:53:35.186+08:00  INFO 1736 --- [           main] com.shiyoushu.snack.ApiIntegrationTest   : The following 1 profile is active: "local"
+2026-10-28T17:53:35.919+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-28T17:53:36.115+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:snacktest user=SA
+2026-10-28T17:53:36.117+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-28T17:53:36.869+08:00  INFO 1736 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-28T17:53:36.869+08:00  INFO 1736 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-28T17:53:36.871+08:00  INFO 1736 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-10-28T17:53:36.891+08:00  INFO 1736 --- [           main] com.shiyoushu.snack.ApiIntegrationTest   : Started ApiIntegrationTest in 2.02 seconds (process running for 3.049)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\keepg\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-10-28T17:53:38.309+08:00  INFO 1736 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.shiyoushu.snack.ProductionProfileTest]: ProductionProfileTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-28T17:53:38.319+08:00  INFO 1736 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.shiyoushu.snack.SnackApplication for test class com.shiyoushu.snack.ProductionProfileTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.16)
+
+2026-10-28T17:53:38.378+08:00  INFO 1736 --- [           main] c.shiyoushu.snack.ProductionProfileTest  : Starting ProductionProfileTest using Java 21.0.12.1 with PID 1736 (started by keepg in D:\wtt\小程序\snack-design-backend)
+2026-10-28T17:53:38.378+08:00  INFO 1736 --- [           main] c.shiyoushu.snack.ProductionProfileTest  : The following 1 profile is active: "prod"
+2026-10-28T17:53:38.711+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-10-28T17:53:38.714+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:prodtest user=SA
+2026-10-28T17:53:38.714+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-10-28T17:53:38.918+08:00  INFO 1736 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-28T17:53:38.918+08:00  INFO 1736 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-28T17:53:38.918+08:00  INFO 1736 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-28T17:53:38.927+08:00  INFO 1736 --- [           main] c.shiyoushu.snack.ProductionProfileTest  : Started ProductionProfileTest in 0.603 seconds (process running for 5.085)
+2026-10-28T17:53:39.008+08:00  INFO 1736 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.shiyoushu.snack.ResearchIntegrationTest]: ResearchIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-28T17:53:39.014+08:00  INFO 1736 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.shiyoushu.snack.SnackApplication for test class com.shiyoushu.snack.ResearchIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.16)
+
+2026-10-28T17:53:39.047+08:00  INFO 1736 --- [           main] c.s.snack.ResearchIntegrationTest        : Starting ResearchIntegrationTest using Java 21.0.12.1 with PID 1736 (started by keepg in D:\wtt\小程序\snack-design-backend)
+2026-10-28T17:53:39.047+08:00  INFO 1736 --- [           main] c.s.snack.ResearchIntegrationTest        : The following 1 profile is active: "local"
+2026-10-28T17:53:39.416+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-10-28T17:53:39.418+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn20: url=jdbc:h2:mem:researchtest user=SA
+2026-10-28T17:53:39.419+08:00  INFO 1736 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-10-28T17:53:39.542+08:00  INFO 1736 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-28T17:53:39.542+08:00  INFO 1736 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-28T17:53:39.542+08:00  INFO 1736 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-28T17:53:39.546+08:00  INFO 1736 --- [           main] c.s.snack.ResearchIntegrationTest        : Started ResearchIntegrationTest in 0.528 seconds (process running for 5.704)

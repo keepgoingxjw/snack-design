@@ -1,0 +1,16 @@
+<view class="page">
+ <view class="section" style="margin-top:0"><text class="eyebrow">食有数 · 你的配料小帮手</text><text class="tag">好奇一点，吃懂一点</text></view>
+ <view class="title">扫一扫包装，<view>把配料读明白。</view></view>
+ <view class="muted">名字很长也没关系，陪你从包装小字，<view>读懂每一种配料的作用与注意事项。</view></view>
+ <view class="hero"><text class="flower">✳</text><view class="paper"><text class="paper-title">今天，吃懂一点点</text><view class="small">配料表 / INGREDIENTS</view><view class="paper-lines">燕麦片、小麦粉、白砂糖、<view>植物油、乳粉……</view></view><view class="barcode"></view></view><image class="hero-logo" src="/assets/logo.png" mode="aspectFit"/><view class="bubble"><view>配料</view><view>翻译官</view></view></view>
+ <button class="primary" bindtap="photo">拍照 / 选图看配料</button>
+ <button class="secondary" bindtap="edit">手动输入配料表</button>
+ <button wx:if="{{hasDraft}}" class="secondary" bindtap="resume">继续上次未完成的配料草稿</button>
+ <view class="scan-link" bindtap="scan" role="button">扫描商品条码 ›</view>
+ <view class="sample-section"><text class="sample-heading">第一次用？先试一包</text><text class="sample-section-hint">无需拍照</text></view>
+ <view class="sample-card" bindtap="sample" role="button" aria-label="试试看燕麦脆饼示例"><view class="sample-cookie" aria-hidden="true"><view class="cookie-dot dot-one"></view><view class="cookie-dot dot-two"></view><view class="cookie-dot dot-three"></view><view class="cookie-dot dot-four"></view></view><view class="sample-copy"><view class="sample-title">燕麦脆饼</view><view class="sample-description">5 项配料 · 看作用，也看注意事项</view><view class="sample-disclaimer">虚构商品，仅供体验</view></view><text class="sample-action">试试看</text></view>
+ <view class="section"><text class="subtitle">配料小课堂</text><text class="small">每次懂一点</text></view>
+ <view class="lessons"><view class="lesson" data-type="role" bindtap="lesson"><text>✧</text><view>配料为什么<view>加进食品里？</view></view><text class="small">先看作用，再看影响 ›</text></view><view class="lesson yellow" data-type="name" bindtap="lesson"><text>☀</text><view>陌生名字，<view>不等于有害</view></view><text class="small">判断需要更多信息 ›</text></view></view>
+ <view class="section"><text class="subtitle">从包装到看懂，只要三步</text></view><view class="steps">01 获取原文　→　02 核对配料　→　03 查看解析</view>
+ <view class="small" style="margin-top:28rpx">当前提供 5 种示例配料的一般知识，其他配料标记为待解析。照片需手动录入；条码暂不查询商品。</view>
+</view>

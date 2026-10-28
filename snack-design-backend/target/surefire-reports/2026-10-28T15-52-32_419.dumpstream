@@ -1,0 +1,5 @@
+# Created at 2026-10-28T15:52:32.546
+Boot Manifest-JAR contains absolute paths in classpath 'D:\wtt\小程序\snack-design-backend\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

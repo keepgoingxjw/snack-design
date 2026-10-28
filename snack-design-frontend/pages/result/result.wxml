@@ -1,0 +1,54 @@
+<view class="page" wx:if="{{record}}">
+  <view class="result-head"><view><view class="heading">{{demoMode ? demoTitle : '每种配料，分开看明白'}}</view><text class="small">{{record.kind}} · {{count}} 项配料</text></view><image class="logo" src="/assets/logo.png" mode="aspectFit"/></view>
+  <view wx:if="{{demoMode}}" class="demo-intro">
+    <view class="demo-badge">虚构示例 · 预设演示</view>
+    <view class="small">无需输入、无需登录、无需等待AI。这些是预设的演示配方，不是实时查询或真实商品结论。</view>
+    <view class="demo-selector"><view wx:for="{{demoSamples}}" wx:key="id" class="demo-choice {{demoId === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="switchDemo">{{item.label}} · {{item.count}} 项</view></view>
+    <view class="demo-raw-label">这份示例的配料表</view><view class="demo-raw" selectable="{{true}}">{{record.raw}}</view>
+  </view>
+  <view wx:if="{{recommendation}}" class="recommendation {{recommendation.action}}">
+    <view class="advice-kicker">最后建议 · {{demoMode ? '预设演示建议' : '条件性指导，非安全判定'}}</view>
+    <view class="advice-title">{{recommendation.title}}</view>
+    <view class="advice-audience">适用人群：{{recommendation.audience}}</view>
+    <view class="advice-reason">{{recommendation.reason}}</view>
+    <view class="advice-conditions">{{recommendation.conditions}}</view>
+    <view wx:for="{{recommendation.sourceUrls}}" wx:key="*this" class="link advice-source" data-url="{{item}}" bindtap="source">查看建议依据 {{index + 1}} ↗</view>
+  </view>
+  <view class="trust">◎　先看作用，再看与你有关的注意事项</view>
+  <view wx:if="{{allergens}}" class="allergen-alert"><view class="strong">优先核对：{{allergens}}</view><view>仅从名称提示部分过敏原线索，请对照实物完整标签。</view></view>
+  <view class="section"><text class="subtitle">配料作用与风险</text><text class="small">{{count}} 项 / {{groups.length}} 组</text></view>
+  <view class="hint">加工用途与营养贡献分开说明；有配料不等于有危害。</view>
+  <view class="tabs" wx:if="{{groups.length}}"><view wx:for="{{tabs}}" wx:key="id" class="tab {{filter === item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="filter">{{item.name}}</view></view>
+  <view wx:if="{{demoMode}}" class="note">示例未提供添加量与营养成分表，不能评估真实商品的具体营养贡献或风险程度。下方是预设的通用知识文案，不是AI实时生成。</view>
+  <view wx:else class="note">未提供添加量及营养成分表，不能评估这包食品的具体营养贡献或风险程度。{{foodCategory ? '按所填食品类别核对用量。' : '未指定食品类别，不提供具体限量。'}} AI 总结未经人工审核。</view>
+  <view wx:if="{{busy || loading}}" class="progress"><view class="strong">{{loading ? '正在读取解析…' : '正在检索资料并生成解析…'}}</view><view class="small">完成后会自动显示在下方，无需再次点击查询。免费云端模型可能排队，离开页面后任务仍会继续。</view></view>
+  <view wx:if="{{error}}" class="research-error">{{error}}<button class="secondary" bindtap="refresh">{{busy ? '刷新进度' : '重新加载'}}</button></view>
+  <button wx:if="{{!loading && !busy && (!report || report.status === 'failed')}}" class="primary" bindtap="start">{{error ? '重试解析' : '开始解析'}}</button>
+  <view wx:if="{{showingHistory}}" class="note">当前为历史快照，可能对应修改前的配料，不表示当前原文的最新解析。</view>
+  <block wx:for="{{groups}}" wx:key="id" wx:for-item="group">
+    <view class="group" wx:if="{{filter === 'all' || filter === group.id}}">
+      <view class="group-head"><text>{{group.title}}</text><text class="small">{{group.rows.length}} 项配料</text></view>
+      <view class="column"><text>配料名称</text><text>作用、好处与风险</text></view>
+      <view wx:for="{{group.rows}}" wx:key="id" class="ingredient">
+        <view class="name"><view class="ingredient-name">{{item.name}}</view><text class="tag">{{item.role}}</text></view>
+        <view class="explanation">
+          <view class="field">作用与好处</view><view>{{item.benefit}}</view>
+          <view class="risk"><view class="field">注意与风险</view><view>{{item.risk}}</view></view>
+          <view wx:if="{{item.advice && item.advice.action !== 'check_first'}}" class="ingredient-advice"><view class="field">食用建议：{{item.advice.title}}</view><view>适用人群：{{item.advice.audience}}</view><view>{{item.advice.reason}}</view></view>
+          <view class="dosage"><view class="field">用量与适用条件</view>
+            <view wx:if="{{item.dosage}}"><view>AI 提取限量：{{item.dosage.value}} {{item.dosage.unit}}</view><view>类别：{{item.dosage.foodCategory}}</view><view>{{item.dosage.jurisdiction}} · {{item.dosage.standard}}</view><view class="small">{{item.dosage.note}}</view></view>
+            <view wx:else>未核实到适用的具体限量，不提供食用剂量建议。</view>
+          </view>
+          <view wx:for="{{item.sources}}" wx:for-item="reference" wx:key="url" class="reference"><view class="link" data-url="{{reference.url}}" bindtap="source">依据：{{reference.title}} ↗</view><view class="small">{{demoMode ? '演示参考资料，未进行本次实时核对' : reference.textVerified ? '原文摘录已匹配，适用性待复核' : '检索出处已记录，正文摘录待核实'}}</view><view wx:if="{{reference.quote}}" class="quote" selectable="{{true}}">{{reference.textVerified ? '原文摘录' : '待核实摘录'}}：{{reference.quote}}</view></view>
+          <view wx:if="{{!item.sources.length}}" class="small">本次未找到可追溯的官方来源，不能据此认定安全。</view>
+          <view class="verification">{{item.verification}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <view wx:if="{{!demoMode && report && report.status === 'done'}}" class="report-meta">已保存 · {{reportDate}}<view>模型：{{report.model}}</view><view>{{report.disclaimer}}</view></view>
+  <view wx:if="{{!demoMode && report}}" class="history-link" bindtap="history">查看历史解析记录 ›</view>
+  <view wx:for="{{history}}" wx:key="id" class="history-item" data-id="{{item.id}}" bindtap="historical">{{item.date}} · {{item.label}}</view>
+  <button class="secondary" bindtap="edit" disabled="{{busy}}">{{demoMode ? '我也来解析自己的配料表' : '继续添加 / 修改配料'}}</button>
+</view>
+<view wx:else class="page empty">{{loading ? '正在读取记录…' : error || '记录不存在或已删除'}}<button wx:if="{{!loading}}" class="secondary" bindtap="onShow">重新加载</button><button class="secondary" bindtap="home">返回首页</button></view>

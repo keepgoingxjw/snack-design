@@ -1,0 +1,12 @@
+const { test } = require('node:test')
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
+test('结果页保留分组两列布局，不再显示查询设置表单', () => {
+  const wxml = fs.readFileSync(path.join(__dirname, '../pages/result/result.wxml'), 'utf8')
+  assert.match(wxml, /class="column"/)
+  assert.match(wxml, /class="ingredient"/)
+  assert.match(wxml, /作用与好处/)
+  assert.match(wxml, /注意与风险/)
+  assert.doesNotMatch(wxml, /<input|联网查询配料|食品类别（选填）/)
+})

@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings"],
+  "properties": {
+    "findings": {
+      "type": "array", "maxItems": 30,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "group", "role", "summary", "benefit", "risk", "dosage", "sources", "advice"],
+        "properties": {
+          "group": {"type": "string", "enum": ["structure", "flavour", "preservation", "nutrition", "other"]},
+          "name": {"type": "string", "maxLength": 5000},
+          "role": {"type": "string", "maxLength": 100},
+          "summary": {"type": "string", "maxLength": 1000},
+          "benefit": {"type": "string", "maxLength": 1500},
+          "risk": {"type": "string", "maxLength": 1500},
+          "dosage": {
+            "anyOf": [
+              {"type": "null"},
+              {"type": "object", "additionalProperties": false,
+                "required": ["value", "unit", "foodCategory", "jurisdiction", "standard", "sourceUrl", "quote", "note"],
+                "properties": {
+                  "value": {"type": "string", "maxLength": 80},
+                  "unit": {"type": "string", "maxLength": 80},
+                  "foodCategory": {"type": "string", "maxLength": 200},
+                  "jurisdiction": {"type": "string", "maxLength": 100},
+                  "standard": {"type": "string", "maxLength": 300},
+                  "sourceUrl": {"type": "string", "maxLength": 2000},
+                  "quote": {"type": "string", "maxLength": 1600},
+                  "note": {"type": "string", "maxLength": 500}
+                }
+              }
+            ]
+          },
+          "advice": {
+            "type": "object", "additionalProperties": false,
+            "required": ["action", "audience", "reason", "sourceUrls"],
+            "properties": {
+              "action": {"type": "string", "enum": ["check_first", "limit_frequency", "avoid_for_group", "consult_professional"]},
+              "audience": {"type": "string", "maxLength": 150},
+              "reason": {"type": "string", "maxLength": 500},
+              "sourceUrls": {"type": "array", "maxItems": 3, "items": {"type": "string", "maxLength": 2000}}
+            }
+          },
+          "sources": {
+            "type": "array", "maxItems": 3,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["title", "url", "quote"],
+              "properties": {
+                "title": {"type": "string", "maxLength": 300},
+                "url": {"type": "string", "maxLength": 2000},
+                "quote": {"type": "string", "maxLength": 1600}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
