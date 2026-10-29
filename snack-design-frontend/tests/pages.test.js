@@ -67,6 +67,65 @@ test('未配置密钥的错误原样展示，不使用示例内容代替', async
   assert.deepEqual(page.data.findings, [])
   assert.equal(page.data.busy, false)
 })
+
+test('公开文献结果展示真实摘要与来源，不生成AI食用建议', () => {
+  const page = loadPage('../pages/result/result')
+  page.display({ id: 'public-report', status: 'done', model: 'public-search/EuropePMC', createdAt: Date.now(),
+    findings: [{ name: '苯甲酸钠', group: 'pending', sources: [{ title: 'Food study', url: 'https://europepmc.org/article/MED/123', quote: 'Abstract excerpt', textVerified: false }] }] })
+  assert.equal(page.data.publicSearch, true)
+  assert.equal(page.data.recommendation, null)
+  assert.equal(page.data.groups[0].rows[0].sources[0].quote, 'Abstract excerpt')
+  assert.equal(page.data.busy, false)
+})
+
+test('切换免费云端模式后旧词表结果标记为需要重新解析', () => {
+  const page = loadPage('../pages/result/result')
+  page.aiModel = 'openrouter/free'
+  page.display({ id: 'old', status: 'done', model: 'public-search/EuropePMC', createdAt: Date.now(), findings: [] })
+  assert.equal(page.data.modeChanged, true)
+  page.display({ id: 'new', status: 'done', model: 'OpenRouter/example:free · 免费AI + 公开文献', createdAt: Date.now(), findings: [] })
+  assert.equal(page.data.modeChanged, false)
+})
+test('DeepSeek切换后不把免费结果当新结果，查看历史不自动计费', async () => {
+  const r = store.save('苯甲酸钠', '手动输入')
+  const model = 'DeepSeek/deepseek-flash · 联网搜索'
+  let calls = 0
+  records.ensureResearchApi = async () => ({ apiVersion: 3, aiModel: model })
+  records.latestResearch = async () => ({ exists: true, report: { id: 'old', status: 'done', foodCategory: '', model: 'OpenRouter/test:free · 免费AI + 公开文献', createdAt: Date.now(), findings: [] } })
+  records.research = async () => { calls++; return { id: 'new', status: 'done', foodCategory: '', model, createdAt: Date.now(), findings: [] } }
+  const page = loadPage('../pages/result/result')
+  page.onLoad({ id: r.id }); await page.onShow()
+  assert.equal(page.data.providerLabel, 'DeepSeek')
+  assert.equal(page.data.modeChanged, true)
+  assert.equal(calls, 0)
+  const submitted = loadPage('../pages/result/result')
+  submitted.onLoad({ id: r.id, auto: '1' }); await submitted.onShow()
+  assert.equal(calls, 1)
+  assert.equal(submitted.data.modeChanged, false)
+  records.latestResearch = async () => ({ exists: true, report: submitted.data.report })
+  await submitted.onShow()
+  assert.equal(calls, 1)
+})
+test('好处和风险按短要点显示，关键词突出，旧段落仍可读取', () => {
+  const page = loadPage('../pages/result/result')
+  page.display({ id: 'summary', status: 'done', model: 'test', createdAt: Date.now(), findings: [{
+    name: '测试配料', group: 'other', sources: [],
+    benefit: '• 主要作用：根据资料说明用途。\n• 加工价值：只概括已查到的特点。',
+    risk: '• 相关人群：说明特定人群的注意事项。\n• 使用限制：法规限制不是人体危害。'
+  }] })
+  const row = page.data.groups[0].rows[0]
+  assert.equal(row.benefitPoints.length, 2)
+  assert.equal(row.benefitPoints[0].lead, '主要作用：')
+  assert.equal(row.riskPoints[1].text, '法规限制不是人体危害。')
+  page.display({ id: 'old', status: 'done', model: 'test', createdAt: Date.now(), findings: [{ name: '测试', group: 'other', sources: [], benefit: '历史单段文字', risk: '旧风险描述' }] })
+  assert.equal(page.data.findings[0].benefitPoints[0].text, '历史单段文字')
+  assert.equal(page.data.findings[0].benefitPoints[0].bullet, false)
+  page.aiModel = 'DeepSeek/deepseek-flash · 联网搜索 · 要点总结v2'
+  page.display({ id: 'old-style', status: 'done', model: 'DeepSeek/deepseek-flash · 联网搜索', createdAt: Date.now(), findings: [] })
+  assert.equal(page.data.modeChanged, true)
+  page.display({ id: 'new-style', status: 'done', model: page.aiModel, createdAt: Date.now(), findings: [] })
+  assert.equal(page.data.modeChanged, false)
+})
 test('离开页面停止轮询，返回页面可恢复任务', async () => {
   const r = store.save('苯甲酸钠', '手动输入')
   records.latestResearch = async () => ({ exists: true, report: { id: 'running', status: 'running', findings: [], createdAt: Date.now() } })

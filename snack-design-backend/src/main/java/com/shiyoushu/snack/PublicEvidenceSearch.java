@@ -26,6 +26,14 @@ public class PublicEvidenceSearch {
             throw new IllegalArgumentException("零费用检索只允许本机自托管搜索服务，不使用不明远程代理");
         this.json=json;this.evidence=evidence;this.base=base.replaceAll("/+$","");
     }
+    public boolean available() {
+        try {
+            // 空查询仅检查本机 JSON 接口，不向搜索引擎提交关键词。
+            var response=http.send(HttpRequest.newBuilder(URI.create(base+"/search?format=json&q="))
+                .timeout(Duration.ofSeconds(3)).GET().build(),HttpResponse.BodyHandlers.ofString());
+            return response.statusCode()==200 && json.readTree(response.body()).path("results").isArray();
+        } catch(Exception e) { return false; }
+    }
     public Context lookup(List<String> names,String category) {
         var urls=new HashSet<String>();var context=new ArrayList<Map<String,Object>>();int budget=12;
         try {

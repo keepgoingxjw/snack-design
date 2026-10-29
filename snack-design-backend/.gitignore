@@ -1,6 +1,7 @@
 target/
 data/
 *.log
+logs/
 .env
 .idea/
 *.iml

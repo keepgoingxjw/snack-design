@@ -10,7 +10,40 @@ import static com.shiyoushu.snack.ResearchModels.*;
 public class ResearchResultValidator {
     private final EvidenceVerifier evidence;
     public ResearchResultValidator(EvidenceVerifier evidence) { this.evidence = evidence; }
+    public AiResult validateLiterature(JsonNode findings,List<String> names,Map<String,String> excerpts,String model) {
+        if(!findings.isArray() || findings.size()!=names.size()) throw new IllegalStateException("AI 配料列表不完整，请重试");
+        var results=new ArrayList<Finding>();
+        for(int i=0;i<names.size();i++) {
+            var item=findings.get(i);
+            if(!names.get(i).equals(item.path("name").asText())) throw new IllegalStateException("AI 返回名称与原文不一致，已拒绝保存");
+            var sources=new ArrayList<Source>();
+            for(var source:item.path("sources")) {
+                String url=source.path("url").asText(), quote=source.path("quote").asText().strip();
+                String retrieved=excerpts.get(names.get(i)+"\n"+url);
+                // 只接受本次API真正返回的摘要；模型不能编造URL或摘录。
+                if(sources.size()>=3 || !url.matches("https://europepmc\\.org/article/[A-Z]+/[a-zA-Z0-9_-]+") || retrieved==null
+                    || quote.length()<12 || quote.length()>1000 || !retrieved.contains(quote)) continue;
+                sources.add(new Source(source.path("title").asText(),url,quote,true));
+            }
+            String group=item.path("group").asText();
+            if(!Set.of("structure","flavour","preservation","nutrition","other").contains(group)) group="other";
+            boolean supported=!sources.isEmpty();
+            results.add(new Finding(names.get(i),supported?safe(item,"role",100):"资料不足",
+                supported?safe(item,"summary",1000):"未找到支持此配料解释的检索来源，暂不提供结论。",
+                supported?safe(item,"benefit",1500):"未核实，不能推断健康益处。",
+                supported?safe(item,"risk",1500):"未核实，不能推断食品有害或安全。",
+                null,sources,"免费 AI 根据本次公开文献摘要生成中文解释；摘录已与接口摘要匹配，论文相关性、实验条件及食品适用性仍待复核。",
+                supported?group:"pending",AdvicePolicy.unknown()));
+        }
+        return new AiResult(results,model);
+    }
+    public AiResult validateWebPages(JsonNode findings, List<String> names, String category, Map<String,String> pages, String model) {
+        return validate(findings, names, category, Set.of(), model, pages);
+    }
     public AiResult validate(JsonNode findings, List<String> names, String category, Set<String> retrieved, String model) {
+        return validate(findings, names, category, retrieved, model, null);
+    }
+    private AiResult validate(JsonNode findings, List<String> names, String category, Set<String> retrieved, String model, Map<String,String> pages) {
         if (!findings.isArray() || findings.size() != names.size()) throw new IllegalStateException("AI 配料列表不完整，请重试");
         var results = new ArrayList<Finding>();
         var verified = new HashMap<String, Boolean>();
@@ -23,9 +56,16 @@ public class ResearchResultValidator {
             for (var source : item.path("sources")) {
                 if (sources.size() == 3) break;
                 String url = source.path("url").asText(), quote = source.path("quote").asText();
-                if (!retrieved.contains(url) || !EvidenceVerifier.allowed(url) || quote.length() > 1600) continue;
-                String cacheKey = url + "\n" + quote;
-                if (!verified.containsKey(cacheKey)) verified.put(cacheKey, budget-- > 0 && evidence.verify(url, quote));
+                boolean wasRetrieved = pages == null ? retrieved.contains(url) : pages.containsKey(name + "\n" + url);
+                if (!wasRetrieved || !EvidenceVerifier.allowed(url) || quote.length() > 1600) continue;
+                String cacheKey = name + "\n" + url + "\n" + quote;
+                if (!verified.containsKey(cacheKey)) {
+                    boolean matched = pages == null ? budget-- > 0 && evidence.verify(url, quote)
+                        : EvidenceVerifier.normalize(quote).length() >= 12
+                            && EvidenceVerifier.normalize(pages.get(name + "\n" + url)).contains(EvidenceVerifier.normalize(quote));
+                    verified.put(cacheKey, matched);
+                }
+                if (pages != null && !verified.get(cacheKey)) continue;
                 sources.add(new Source(source.path("title").asText(), url, quote, verified.get(cacheKey)));
             }
             boolean supported = !sources.isEmpty();
@@ -36,7 +76,8 @@ public class ResearchResultValidator {
                 supported ? safe(item, "benefit", 1500) : "未核实，不能推断健康益处。",
                 supported ? safe(item, "risk", 1500) : "资料不足不代表没有风险，请核对实物标签及专业建议。",
                 dose(item.path("dosage"), category, sources), sources,
-                supported ? "AI 根据本次官方域名检索资料总结，未经人工审核；引用核对不代表标准适用性已获确认。" : "未核实",
+                supported ? (pages == null ? "AI 根据本次官方域名检索资料总结，未经人工审核；引用核对不代表标准适用性已获确认。"
+                    : "DeepSeek 根据本次搜索/抓取返回的官方网页正文生成总结；摘录仅与该返回正文匹配，标准现行性、语义和适用性仍待人工审核。") : "未核实",
                 supported ? group : "pending", AdvicePolicy.validate(item.path("advice"), sources)));
         }
         return new AiResult(results, model);

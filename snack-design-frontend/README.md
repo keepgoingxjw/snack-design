@@ -4,24 +4,24 @@
 
 ## 目录与导入
 
-前端使用 `D:\wtt\小程序\snack-design-frontend`，后端使用 `D:\wtt\小程序\snack-design-backend`。
+前端使用 `D:\wtt\小程序\snack-design\snack-design-frontend`，后端使用 `D:\wtt\小程序\snack-design\snack-design-backend`。
 
-Windows 当前占用原 `snack-design` 目录，直接重命名两次失败。因此新前端目录是完整复制的可工作版本，原目录保留，未删除。请在微信开发者工具中重新导入新目录；确认正常后，关闭旧项目与占用旧路径的终端/会话，再自行归档或删除原目录。两个目录不是自动同步的，后续只维护新目录。
+当前 `snack-design` 是包含前后端的仓库根目录，微信开发者工具只导入其中的 `snack-design-frontend`。不要按旧的目录迁移说明删除根目录；后续前端改动只维护该子目录。
 
 本轮保留了已有小程序 AppID，不需要重新填写测试 AppID。服务端正式微信登录仍需要独立配置 AppSecret，绝不能放到小程序中。
 
 ## 启动联调
 
-### 1. 先启动免费AI和Java后端
+### 1. 启动DeepSeek后端
 
-默认改为云端OpenRouter免费模型，不在本机运行/下载大模型。需要注册免费API Key；免费检索由独立轻量SearXNG承担（不是大模型，不需要GPU）。配置见后端 `ZERO_COST_CLOUD.md`，可用 `start-zero-cost-cloud.cmd`。零价格模式下额度用完就停止，不启用付费搜索或模型fallback。
+当前使用用户已选择的DeepSeek付费API：官方Search/Fetch检索网页，再由DeepSeek模型总结，不需要Docker、SearXNG、Ollama。按后端 `DEEPSEEK.md` 在 `.env` 或环境变量配置 `DEEPSEEK_API_KEY`，运行 `start-deepseek.cmd`。搜索/抓取与模型推理会分别消耗账户额度；不要把Key放入小程序或聊天。
 
 必须先在旧Java窗口按Ctrl+C释放8080，再从后端新目录启动。健康检查应包含 `apiVersion:3`，否则仍是旧运行版本。
 
 仅需单独启动Java时：
 
 ```powershell
-cd D:\wtt\小程序\snack-design-backend
+cd D:\wtt\小程序\snack-design\snack-design-backend
 mvn spring-boot:run
 ```
 
@@ -67,7 +67,7 @@ module.exports = {
 ```
 
 - 上传：点击编辑页确认按钮后，配料文字提交服务端并保存。
-- 不上传：照片、未提交的文字草稿。
+- 拍照图片仅上传应用自己的Java后端用于传统OCR，不发送到DeepSeek或其他AI服务、不写入配料记录；未提交文字草稿保存在本机。
 - `utils/api.js`：请求超时、会话缓存、并发登录合并、401后只重登重试一次。
 - `utils/records.js`：服务端记录增删改查、异步 AI 调研、进度和历史快照查询。
 - `utils/storage.js`：草稿持久化，以及旧版本本机记录数据的兼容保留；页面不再从这里读取正式记录。
@@ -100,12 +100,18 @@ npm test
 
 ## AI 查询与结果页
 
-默认云端入口为 `openrouter/free`，后端检查目录价格并把请求价格上限设为0；不下载本机模型、不使用计费搜索插件。需要免费账号API Key与免费检索组件，当前未完成真实云端推理验收，不能把模拟测试当作实际已运行。
+默认云端服务为DeepSeek，使用官方Search/Fetch与Chat API，模型请求别名 `deepseek-flash` 可配置。不需要本地模型或搜索容器。当前没有使用真实Key完成计费查询验收，不能把模拟测试当成真实结果。
 
 上传原文后直接进入原设计的分组两列解析页，自动开始检索并显示真实结果，不再展示查询设置表单。食品类别移到原文编辑页选填；未填或原文引用未核实时不显示具体限量。返回已有结果不会自动重查，AI结论未经人工审核。
 
-默认 `AI_ZERO_COST_ONLY=true` 会阻止收费云服务；免费额度或搜索不可用时如实失败。详见后端 `ZERO_COST_CLOUD.md`。免费并不意味着永久在线、无限次数或所有底层模型都开源，引用和建议边界仍见 `docs/AI_RESEARCH.md`。
+DeepSeek付费模式需 `AI_PROVIDER=deepseek`、`AI_ZERO_COST_ONLY=false`；若遗留为true，会明确阻止调用而非绕过保护。不回退OpenRouter、OpenAI或无AI词表。历史报告标注来源，切换服务后需明确重新解析才付费生成新报告，浏览历史不自动扣费。详见后端 `DEEPSEEK.md`。
+
+## 拍照文字识别
+
+仅补齐既有拍照链路：确认后通过认证的 `/api/ocr/tesseract` 上传至应用后端，由Tesseract传统OCR提取文字，回填现有原文框。识字不调用DeepSeek、不需要AI Key、不产生AI API费用。用户核对并点击确认后才开始原有配料分析；没有新增页面、按钮或自动提交功能。失败仍可手动输入，不回填预设内容。
+
+支持JPEG/PNG，单图最多4MB；上传识别超时60秒。生产微信后台需增加后端的uploadFile合法域名，隐私用途说明图片仅用于自有后端OCR。后端OCR语言数据与部署见 `OCR.md`。本机已跑通真实引擎测试，但某些字仍可能误识别，必须人工核对。
 
 ## 能力边界
 
-OCR、商品数据库未接入，相机照片仍需对照手动录入。新调研链路不限制配料名称，也不依赖旧示例知识表。引用来自官方域名不代表AI理解、标准现行性和适用性已核实；不做食品安全评级，不提供个人食用建议，不能以“无资料”判断安全。
+拍照文字识别已接入，结果仍需核对；商品数据库未接入。新调研链路不限制配料名称，也不依赖旧示例知识表。引用来自官方域名不代表AI理解、标准现行性和适用性已核实；不做食品安全评级，不提供个人食用建议，不能以“无资料”判断安全。

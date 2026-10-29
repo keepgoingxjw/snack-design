@@ -55,6 +55,53 @@ class ResearchIntegrationTest {
         for(int i=0;i<100;i++) { report=research.find(sessions.user(auth),report.id()); if("failed".equals(report.status())) break; Thread.sleep(20); }
         assertEquals("failed",report.status()); assertTrue(report.findings().isEmpty()); assertEquals("AI服务额度不足",report.error());
     }
+    @Test void switchingToCloudDoesNotReuseDictionaryReportAndCloudReportIsCached() throws Exception {
+        when(gateway.configured()).thenReturn(true);
+        when(gateway.model()).thenReturn(PublicLiteratureGateway.MODEL);
+        when(gateway.research(anyList(),anyString())).thenReturn(new AiResult(List.of(),PublicLiteratureGateway.MODEL));
+        String auth=token(), user=sessions.user(auth), record=record(auth);
+        var old=research.create(user,record,new Query("",false));
+        for(int i=0;i<100;i++) { old=research.find(user,old.id()); if("done".equals(old.status())) break; Thread.sleep(20); }
+        assertEquals("done",old.status());
+        when(gateway.model()).thenReturn("openrouter/free");
+        when(gateway.research(anyList(),anyString())).thenReturn(new AiResult(List.of(),"OpenRouter/example:free · 免费AI + 公开文献"));
+        var current=research.create(user,record,new Query("",false));
+        assertNotEquals(old.id(),current.id());
+        for(int i=0;i<100;i++) { current=research.find(user,current.id()); if("done".equals(current.status())) break; Thread.sleep(20); }
+        assertEquals("done",current.status());
+        assertEquals(current.id(),research.create(user,record,new Query("",false)).id());
+        verify(gateway,times(2)).research(anyList(),anyString());
+    }
+    @Test void summaryRevisionDoesNotReuseOldParagraphReportOrRepeatNewQueries() throws Exception {
+        String oldModel="DeepSeek/deepseek-flash · 联网搜索", currentModel=oldModel+" · 要点总结v2";
+        when(gateway.configured()).thenReturn(true);
+        when(gateway.model()).thenReturn(oldModel);
+        when(gateway.research(anyList(),anyString())).thenReturn(new AiResult(List.of(),oldModel));
+        String auth=token(), user=sessions.user(auth), record=record(auth);
+        var old=research.create(user,record,new Query("",false));
+        for(int i=0;i<100;i++) { old=research.find(user,old.id()); if("done".equals(old.status())) break; Thread.sleep(20); }
+        assertEquals("done",old.status());
+        when(gateway.model()).thenReturn(currentModel);
+        when(gateway.research(anyList(),anyString())).thenReturn(new AiResult(List.of(),currentModel));
+        var updated=research.create(user,record,new Query("",false));
+        assertNotEquals(old.id(),updated.id());
+        for(int i=0;i<100;i++) { updated=research.find(user,updated.id()); if("done".equals(updated.status())) break; Thread.sleep(20); }
+        assertEquals("done",updated.status());
+        assertEquals(updated.id(),research.create(user,record,new Query("",false)).id());
+        verify(gateway,times(2)).research(anyList(),anyString());
+    }
+    @Test void completedDeepSeekReportIsReusedWithoutRepeatingPaidRequests() throws Exception {
+        String model="DeepSeek/deepseek-flash · 联网搜索";
+        when(gateway.configured()).thenReturn(true);
+        when(gateway.model()).thenReturn(model);
+        when(gateway.research(anyList(),anyString())).thenReturn(new AiResult(List.of(),model));
+        String auth=token(), user=sessions.user(auth), record=record(auth);
+        var report=research.create(user,record,new Query("",false));
+        for(int i=0;i<100;i++) { report=research.find(user,report.id()); if("done".equals(report.status())) break; Thread.sleep(20); }
+        assertEquals("done",report.status());
+        assertEquals(report.id(),research.create(user,record,new Query("",false)).id());
+        verify(gateway,times(1)).research(anyList(),anyString());
+    }
     @Test void querySnapshotsPersistArePrivateAndDoNotOverrideEditedRaw() throws Exception {
         when(gateway.configured()).thenReturn(true);
         when(gateway.research(anyList(), anyString())).thenAnswer(call -> new AiResult(List.of(new Finding("苯甲酸钠", "测试用途", "仅供自动化测试", "测试益处", "测试风险", null, List.of(), "测试")), "test-model"));

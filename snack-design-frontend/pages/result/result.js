@@ -6,12 +6,21 @@ const groupTypes = [
   { id: 'preservation', title: '保鲜与加工' }, { id: 'nutrition', title: '营养相关' },
   { id: 'other', title: '其他作用' }, { id: 'pending', title: '待核实配料' }
 ]
+function summaryPoints(value) {
+  if (typeof value !== 'string') return []
+  const lines = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+  return lines.map((line, id) => {
+    const text = line.replace(/^(?:[•●\-]\s*|\d+[.、)]\s*)/, '')
+    const match = text.match(/^([^：:]{1,18}[：:])\s*(.*)$/)
+    return { id, bullet: text !== line || lines.length > 1, lead: match ? match[1] : '', text: match ? match[2] : text }
+  })
+}
 function dateLabel(time) {
   const d = new Date(time), pad = n => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 Page({
-  data: { demoMode: false, demoId: '', demoTitle: '', demoSamples: [], recommendation: null, record: null, report: null, findings: [], groups: [], tabs: [], filter: 'all', count: 0, allergens: '', loading: true, busy: false, error: '', foodCategory: '', history: [], showingHistory: false, reportDate: '' },
+  data: { providerLabel: '当前AI', demoMode: false, demoId: '', demoTitle: '', demoSamples: [], recommendation: null, record: null, report: null, findings: [], groups: [], tabs: [], filter: 'all', count: 0, allergens: '', loading: true, busy: false, error: '', foodCategory: '', history: [], showingHistory: false, reportDate: '' },
   onLoad(q) {
     this.recordId = q.id
     this.autoStart = q.auto === '1'
@@ -28,12 +37,14 @@ Page({
       const record = await store.find(this.recordId)
       if (version !== this.version || this.stopped) return
       this.setData({ record, count: splitIngredients(record.raw).length, allergens: allergenClues(record.raw).join('、') })
-      await store.ensureResearchApi()
+      const health = await store.ensureResearchApi()
+      this.aiModel = health.aiModel
+      this.setData({ publicSearch: health.aiModel === 'public-search/EuropePMC', providerLabel: (health.aiModel || '').startsWith('DeepSeek/') ? 'DeepSeek' : '当前AI' })
       const latest = await store.latestResearch(this.recordId)
       if (version !== this.version || this.stopped) return
       const auto = this.autoStart
       this.autoStart = false
-      const sameCategory = latest.exists && latest.report.foodCategory === this.data.foodCategory
+      const sameCategory = latest.exists && latest.report.foodCategory === this.data.foodCategory && !this.modeChanged(latest.report)
       if (latest.exists && (!auto || sameCategory)) {
         this.display(latest.report)
         this.setData({ foodCategory: latest.report.foodCategory || '' })
@@ -54,15 +65,21 @@ Page({
   switchDemo(e) { if (this.data.demoMode) this.renderDemo(e.currentTarget.dataset.id) },
   onHide() { this.pause() }, onUnload() { this.pause() },
   pause() { this.stopped = true; this.version = (this.version || 0) + 1; clearTimeout(this.timer) },
+  modeChanged(report) {
+    if ((this.aiModel || '').startsWith('DeepSeek/') && report && report.status === 'done') return report.model !== this.aiModel
+    const cloud = this.aiModel === 'openrouter/free' || /:free$/.test(this.aiModel || '')
+    return cloud && report && report.status === 'done' && !(report.model || '').includes('免费AI + 公开文献')
+  },
   display(report) {
-    const findings = report ? report.findings.map((finding, id) => ({ ...finding, id, group: finding.group || 'other' })) : []
+    const findings = report ? report.findings.map((finding, id) => ({ ...finding, id, group: finding.group || 'other', benefitPoints: summaryPoints(finding.benefit), riskPoints: summaryPoints(finding.risk) })) : []
     const groups = groupTypes.map(group => ({ ...group, rows: findings.filter(row => row.group === group.id) })).filter(group => group.rows.length)
     const recommendation = report && report.status === 'done' ? report.recommendation || {
       action: 'check_first', title: '先核对，再决定', audience: '所有用户，尤其有过敏或特殊饮食需求者',
       reason: '这份记录尚无经过建议规则校验的结论，请核对标签、食用量与个人限制。',
       conditions: '不能仅凭配料名称保证“吃一点没事”或判定整款食品能吃/不能吃。AI建议不能替代专业意见。', sourceUrls: []
     } : null
-    this.setData({ report, recommendation, findings, groups, tabs: [{ id: 'all', name: '全部' }, ...groups.map(g => ({ id: g.id, name: g.title }))], filter: 'all',
+    const publicSearch = !!report && report.model === 'public-search/EuropePMC'
+    this.setData({ report, publicSearch, modeChanged: this.modeChanged(report), recommendation: publicSearch ? null : recommendation, findings, groups, tabs: [{ id: 'all', name: '全部' }, ...groups.map(g => ({ id: g.id, name: g.title }))], filter: 'all',
       busy: !!report && ['queued', 'running'].includes(report.status), reportDate: report ? dateLabel(report.createdAt) : '',
       error: report && report.status === 'failed' ? report.error : '' })
   },

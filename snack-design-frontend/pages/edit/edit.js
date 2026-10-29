@@ -1,8 +1,9 @@
 const { seed, splitIngredients } = require('../../utils/ingredients')
 const store = require('../../utils/storage')
 const records = require('../../utils/records')
+const ocr = require('../../utils/ocr')
 Page({
-  data: { raw: '', imagePath: '', error: '', kind: '手动输入', foodCategory: '', loading: true, saving: false, recordId: '' },
+  data: { raw: '', imagePath: '', error: '', kind: '手动输入', foodCategory: '', recognizing: false, ocrDone: false, loading: true, saving: false, recordId: '' },
   async onLoad(q) {
     try {
       const record = q.id && await records.find(q.id)
@@ -17,21 +18,40 @@ Page({
       })
     } catch (e) { this.setData({ error: e.message || '无法读取数据，请返回重试' }); this.invalid = true }
     finally { this.setData({ loading: false }) }
+    if (q.photo && this.data.imagePath && !this.invalid) await this.recognize()
+  },
+  async recognize() {
+    this.setData({ recognizing: true, error: '' })
+    let success = false
+    try {
+      const result = await ocr.recognize(this.data.imagePath)
+      if (this.unloaded) return
+      this.setData({ raw: result.text, ocrDone: true })
+      success = true
+    } catch (e) {
+      if (!this.unloaded) this.setData({ error: (e.message || '图片文字识别失败') + '。你仍可对照照片手动输入。' })
+    } finally {
+      if (!this.unloaded) {
+        this.setData({ recognizing: false })
+        if (success) this.persistDraft()
+      }
+    }
   },
   category(e) { this.setData({ foodCategory: e.detail.value }); this.persistDraft() },
-  input(e) { this.submitted = false; this.setData({ raw: e.detail.value, error: '' }); this.persistDraft() },
+  input(e) { this.manuallyEdited = true; this.submitted = false; this.setData({ raw: e.detail.value, error: '' }); this.persistDraft() },
   persistDraft() {
-    if (this.submitted || this.invalid || this.data.loading) return
+    if (this.submitted || this.invalid || this.data.loading || this.data.recognizing) return
+    if (this.data.imagePath && !this.data.ocrDone && !this.manuallyEdited) return
     try {
       if (this.data.raw.trim()) store.saveDraft({ raw: this.data.raw, kind: this.data.kind, recordId: this.data.recordId, foodCategory: this.data.foodCategory })
       else store.clearDraft()
     } catch (e) { this.setData({ error: '草稿保存失败，请检查微信存储空间，暂勿离开此页' }) }
   },
   onHide() { this.persistDraft() },
-  onUnload() { this.persistDraft() },
+  onUnload() { this.unloaded = true; this.persistDraft() },
   preview() { if (this.data.imagePath) wx.previewImage({ urls: [this.data.imagePath] }) },
   async submit() {
-    if (this.data.saving || this.data.loading || this.invalid) return
+    if (this.data.saving || this.data.loading || this.data.recognizing || this.invalid) return
     this.setData({ saving: true, error: '' })
     try {
       splitIngredients(this.data.raw)

@@ -1,6 +1,13 @@
 spring:
+  config:
+    import: optional:file:./.env[.properties]
   profiles:
     default: local
+  servlet:
+    multipart:
+      max-file-size: 4MB
+      max-request-size: 5MB
+      file-size-threshold: 4MB
   datasource:
     url: ${DB_URL:jdbc:h2:file:./data/snack;DB_CLOSE_ON_EXIT=FALSE;WRITE_DELAY=0}
     username: ${DB_USER:sa}
@@ -11,14 +18,23 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: true
+logging:
+  file:
+    name: logs/backend.log
 server:
   port: ${PORT:8080}
   error:
     include-message: never
 app:
+  ocr:
+    data-path: ${OCR_DATA_PATH:data/tessdata}
   ai:
-    provider: ${AI_PROVIDER:openrouter}
-    zero-cost-only: ${AI_ZERO_COST_ONLY:true}
+    provider: ${AI_PROVIDER:deepseek}
+    zero-cost-only: ${AI_ZERO_COST_ONLY:false}
+    deepseek-key: ${DEEPSEEK_API_KEY:}
+    deepseek-model: ${DEEPSEEK_MODEL:deepseek-flash}
+    deepseek-max-searches: ${DEEPSEEK_MAX_SEARCHES:30}
+    deepseek-max-fetches: ${DEEPSEEK_MAX_FETCHES:4}
     openrouter-key: ${OPENROUTER_API_KEY:}
     free-model: ${OPENROUTER_MODEL:openrouter/free}
     ollama-url: ${OLLAMA_URL:http://127.0.0.1:11434}

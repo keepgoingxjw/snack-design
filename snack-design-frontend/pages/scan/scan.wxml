@@ -5,5 +5,5 @@
   <view class="viewfinder"><view class="label-demo"><text class="subtitle">配料表</text><view>燕麦片、小麦粉、白砂糖、</view><view>植物油、乳粉</view><view class="guide-line"></view></view><text class="frame-hint">文字清晰 · 标签完整 · 光线均匀</text></view>
   <button class="primary" data-source="camera" bindtap="photo" disabled="{{busy}}">拍摄配料表</button>
   <view class="alternatives"><button class="secondary" bindtap="edit">手动输入</button></view>
-  <view class="note">当前照片仅供对照录入，不会上传或自动识别。配料知识仅作一般说明，不代替核对实物标签。</view>
+  <view class="note">拍照后由后端OCR提取文字并回填原文，图片不发送给DeepSeek等AI服务。请核对识别文字后再查看解析。</view>
 </view>

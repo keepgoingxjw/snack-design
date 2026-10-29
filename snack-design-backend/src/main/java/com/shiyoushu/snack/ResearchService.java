@@ -40,8 +40,11 @@ public class ResearchService implements ApplicationRunner {
         String category = query.foodCategory() == null ? "" : query.foodCategory().strip();
         if (category.length() > 200) throw new IllegalArgumentException("食品类别最多200字");
         var latest = latest(user, recordId);
+        boolean sameMode = latest != null && (java.util.Objects.equals(latest.model(), gateway.model())
+            || ("openrouter/free".equals(gateway.model()) || String.valueOf(gateway.model()).endsWith(":free"))
+                && latest.model().startsWith("OpenRouter/") && latest.model().endsWith("免费AI + 公开文献"));
         if (latest != null && latest.foodCategory().equals(category)
-            && (List.of("queued", "running").contains(latest.status()) || (!query.refresh() && "done".equals(latest.status())))) return latest;
+            && (List.of("queued", "running").contains(latest.status()) || (sameMode && !query.refresh() && "done".equals(latest.status())))) return latest;
         if (!gateway.configured()) {
             String message = gateway.configurationError();
             throw new ResponseStatusException(SERVICE_UNAVAILABLE, message == null ? "AI服务未配置" : message);
@@ -94,7 +97,9 @@ public class ResearchService implements ApplicationRunner {
             List<Finding> findings = json.readValue(rs.getString("findings_json"), new TypeReference<List<Finding>>() {});
             return new Report(rs.getString("id"), rs.getString("record_id"), rs.getString("status"), rs.getString("food_category"),
                 rs.getLong("created_at"), rs.getLong("updated_at"), rs.getString("model"), findings,
-                rs.getString("error_message"), DISCLAIMER, AdvicePolicy.overall(findings, rs.getString("status")));
+                rs.getString("error_message"), PublicLiteratureGateway.MODEL.equals(rs.getString("model"))
+                    ? "Europe PMC 公开文献检索快照，未调用 AI；摘要未翻译，未经食品标准或临床适用性审核。不提供食用建议。" : DISCLAIMER,
+                PublicLiteratureGateway.MODEL.equals(rs.getString("model")) ? null : AdvicePolicy.overall(findings, rs.getString("status")));
         } catch (Exception e) { throw new SQLException("调研记录解析失败", e); }
     }
 }

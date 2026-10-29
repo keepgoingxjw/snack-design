@@ -40,14 +40,35 @@ async function login() {
   })()
   try { return await loginTask } finally { loginTask = null }
 }
-async function request(path, method = 'GET', data) {
+async function withSession(work) {
   const session = wx.getStorageSync(SESSION_KEY)
   const token = session && session.expiresAt > Date.now() + 10000 ? session.token : await login()
-  try { return await send(path, method, data, token) }
+  try { return await work(token) }
   catch (e) {
     if (e.status !== 401) throw e
     wx.removeStorageSync(SESSION_KEY)
-    return send(path, method, data, await login())
+    return work(await login())
   }
 }
-module.exports = { request }
+function request(path, method = 'GET', data) {
+  return withSession(token => send(path, method, data, token))
+}
+function upload(path, filePath) {
+  return withSession(token => new Promise((resolve, reject) => {
+    wx.uploadFile({
+      url: config.baseUrl + path, filePath, name: 'image', timeout: 60000,
+      header: { Authorization: 'Bearer ' + token },
+      success: res => {
+        let data
+        try { data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data } catch (e) { data = null }
+        if (res.statusCode >= 200 && res.statusCode < 300 && data) resolve(data)
+        else {
+          const error = new Error(data && data.message || '图片识别上传失败，请稍后重试或手动录入')
+          error.status = res.statusCode; reject(error)
+        }
+      },
+      fail: () => reject(new Error('图片上传失败或识别超时，请检查网络，也可对照照片手动输入'))
+    })
+  }))
+}
+module.exports = { request, upload }

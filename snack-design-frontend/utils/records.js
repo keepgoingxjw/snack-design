@@ -11,7 +11,11 @@ module.exports = {
   save: (raw, kind, id) => api.request('/records' + (id ? '/' + encodeURIComponent(id) : ''), id ? 'PUT' : 'POST', { raw, kind }),
   remove: id => api.request('/records/' + encodeURIComponent(id), 'DELETE'),
   clear: () => api.request('/records', 'DELETE'),
-  research: (id, foodCategory, refresh = false) => api.request('/records/' + encodeURIComponent(id) + '/research', 'POST', { foodCategory, refresh }),
+  research: async (id, foodCategory, refresh = false) => {
+    const readiness = await api.request('/research/readiness')
+    if (!readiness || !readiness.ready) throw new Error(readiness && readiness.message || '解析服务暂不可用，请检查后端配置')
+    return api.request('/records/' + encodeURIComponent(id) + '/research', 'POST', { foodCategory, refresh })
+  },
   latestResearch: id => api.request('/records/' + encodeURIComponent(id) + '/research/latest'),
   researchStatus: id => api.request('/research/' + encodeURIComponent(id)),
   researchHistory: id => api.request('/records/' + encodeURIComponent(id) + '/research/history')

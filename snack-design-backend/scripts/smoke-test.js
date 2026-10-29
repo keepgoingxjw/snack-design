@@ -18,8 +18,11 @@ async function freePort() {
 }
 async function start(port) {
   output = ''
-  processHandle = spawn('java', ['-jar', path.join(root, 'target/snack-design-backend-0.1.0.jar'),
-    '--spring.profiles.active=local', '--app.ai.provider=openrouter', '--app.ai.openrouter-key=', '--server.port=' + port,
+  const application = process.env.SMOKE_CLASSPATH
+    ? ['-cp', process.env.SMOKE_CLASSPATH, 'com.shiyoushu.snack.SnackApplication']
+    : ['-jar', path.join(root, 'target/snack-design-backend-0.1.0.jar')]
+  processHandle = spawn('java', [...application,
+    '--spring.profiles.active=local', '--app.ai.provider=deepseek', '--app.ai.deepseek-key=', '--app.ai.zero-cost-only=false', '--server.port=' + port,
     '--spring.datasource.url=jdbc:h2:file:' + path.join(temp, 'db').replace(/\\/g, '/') + ';DB_CLOSE_ON_EXIT=FALSE;WRITE_DELAY=0'], { cwd: root, windowsHide: true })
   processHandle.stdout.on('data', b => { output += b })
   processHandle.stderr.on('data', b => { output += b })
@@ -46,7 +49,11 @@ async function request(route, method = 'GET', data, token, expected = 200) {
 ;(async () => {
   const port = await freePort()
   await start(port)
+  const health = await request('/health')
+  assert.match(health.aiModel, /^DeepSeek\//)
+  assert.equal(health.aiConfigured, false)
   const alice = await request('/auth/dev', 'POST', { deviceId: 'smoke-alice-device-123' })
+  assert.equal((await request('/research/readiness', 'GET', undefined, alice.token)).ready, false)
   const bob = await request('/auth/dev', 'POST', { deviceId: 'smoke-bob-device-456' })
   await request('/records', 'GET', undefined, undefined, 401)
   const record = await request('/records', 'POST', { raw: '乳粉、小麦粉', kind: '虚构示例' }, alice.token)
@@ -72,7 +79,13 @@ async function request(route, method = 'GET', data, token, expected = 200) {
       getStorageSync: key => storage.get(key), setStorageSync: (key, value) => storage.set(key, value), removeStorageSync: key => storage.delete(key),
       request: options => fetch(options.url, { method: options.method, headers: options.header,
         body: options.data ? JSON.stringify(options.data) : undefined })
-        .then(async response => options.success({ statusCode: response.status, data: await response.json() })).catch(options.fail)
+        .then(async response => options.success({ statusCode: response.status, data: await response.json() })).catch(options.fail),
+      uploadFile: options => {
+        const form = new FormData()
+        form.append(options.name, new Blob([fs.readFileSync(options.filePath)], { type: 'image/png' }), 'image.png')
+        fetch(options.url, { method: 'POST', headers: options.header, body: form })
+          .then(async response => options.success({ statusCode: response.status, data: await response.text() })).catch(options.fail)
+      }
     }
     const records = require(path.join(frontend, 'utils/records.js'))
     const created = await records.save('乳粉、小麦粉', '手动输入')
@@ -82,6 +95,17 @@ async function request(route, method = 'GET', data, token, expected = 200) {
     assert.equal((await records.all())[0].raw, '乳粉')
     await records.remove(created.id)
     assert.deepEqual(await records.all(), [])
+    const ocr = require(path.join(frontend, 'utils/ocr.js'))
+    if (process.env.SMOKE_OCR_IMAGE) {
+      const result = await ocr.recognize(process.env.SMOKE_OCR_IMAGE)
+      assert.match(result.text.replace(/\s+/g, ''), /燕麦片/)
+      console.log('真实传统OCR图片上传与中英文识别通过，不需要DeepSeek Key，不调用AI')
+    } else {
+      const invalidImage = path.join(temp, 'invalid-image.png')
+      fs.writeFileSync(invalidImage, 'not an image')
+      await assert.rejects(ocr.recognize(invalidImage), /图片内容无效/)
+      console.log('OCR实际上传、鉴权及图片内容校验通过，不调用AI')
+    }
     console.log('前端实际 utils/api.js + utils/records.js 到 Java 数据库接口联调通过')
   }
   console.log('HTTP 联调通过：登录、鉴权、记录增改查删、用户隔离、无密钥拒绝伪造AI结果、重启后持久化')

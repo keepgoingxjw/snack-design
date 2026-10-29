@@ -7,13 +7,13 @@ Page({
     const source = e.currentTarget.dataset.source === 'album' ? 'album' : 'camera'
     wx.showModal({
       title: source === 'album' ? '选择配料表照片' : '拍摄配料表',
-      content: '照片仅在本次录入中供你对照，不会上传。目前未接入文字识别，选图后需要手动输入配料。',
+      content: '照片仅上传到应用后端，用OCR提取图片文字，不发送给DeepSeek或其他AI服务，不保存到配料记录。识别结果会回填原文，请你核对后再确认。',
       confirmText: '继续',
       success: r => {
         if (!r.confirm) return
         this.setData({ busy: true })
         wx.chooseMedia({
-          count: 1, mediaType: ['image'], sourceType: [source],
+          count: 1, mediaType: ['image'], sourceType: [source], sizeType: ['compressed'],
           success: res => {
             getApp().globalData.imagePath = res.tempFiles[0].tempFilePath
             wx.navigateTo({ url: '/pages/edit/edit?photo=1' })

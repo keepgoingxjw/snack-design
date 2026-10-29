@@ -1,4 +1,8 @@
-# 云端零调用费方案（当前默认）
+# 云端零调用费方案（可选）
+
+**本轮更新：云端模式已改为免费 AI 动态生成检索词 + Europe PMC 公开 API + 中文 AI 总结，无需 SearXNG/Docker。现行配置见 [CLOUD_FREE_AI.md](CLOUD_FREE_AI.md)。以下旧启动步骤仅作历史参考。**
+
+当前最小闭环默认使用 `AI_PROVIDER=public-search`，直接查询 Europe PMC 公开 API，无需密钥、Docker 或大模型，返回英文文献摘要及来源，不执行 AI 总结。直接运行 `start-local.cmd`；本文件后续内容仅适用于主动选择 `AI_PROVIDER=openrouter` 的云端 AI 模式。
 
 ## 零费用的具体含义
 
