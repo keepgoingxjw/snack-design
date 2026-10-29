@@ -11,5 +11,5 @@ Page({
   sample() { wx.navigateTo({ url: '/pages/result/result?demo=oat-original' }) },
   photo() { wx.navigateTo({ url: '/pages/scan/scan' }) },
   scan() { return openScanner() },
-  lesson(e) { wx.showModal({ title: e.currentTarget.dataset.type === 'role' ? '配料为什么加进食品里？' : '陌生名字，不等于有害', content: e.currentTarget.dataset.type === 'role' ? '配料有不同的常见用途，例如形成结构、提供甜味、调整口感。加工用途与营养价值需要分开理解。' : '判断风险需要结合用量、食用频率和个人情况。先核对包装原文，再看具体注意事项。', showCancel: false }) }
+  lesson(e) { wx.navigateTo({ url: '/pages/lesson/lesson?topic=' + (e.currentTarget.dataset.type === 'name' ? 'name' : 'role') }) }
 })

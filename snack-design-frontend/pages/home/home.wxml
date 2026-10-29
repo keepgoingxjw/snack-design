@@ -11,5 +11,4 @@
  <view class="section"><text class="subtitle">配料小课堂</text><text class="small">每次懂一点</text></view>
  <view class="lessons"><view class="lesson" data-type="role" bindtap="lesson"><text>✧</text><view>配料为什么<view>加进食品里？</view></view><text class="small">先看作用，再看影响 ›</text></view><view class="lesson yellow" data-type="name" bindtap="lesson"><text>☀</text><view>陌生名字，<view>不等于有害</view></view><text class="small">判断需要更多信息 ›</text></view></view>
  <view class="section"><text class="subtitle">从包装到看懂，只要三步</text></view><view class="steps">01 获取原文　→　02 核对配料　→　03 查看解析</view>
- <view class="small" style="margin-top:28rpx">拍照文字识别由OCR完成，不调用DeepSeek。请核对原文后再查看解析；后续配料解析仍使用已配置的云端服务。</view>
 </view>

@@ -1,0 +1,25 @@
+<view class="lesson-page">
+  <view class="lesson-hero {{topic === 1 ? 'yellow' : ''}}">
+    <view class="lesson-eyebrow">配料小课堂 · {{topic === 1 ? '看懂陌生名字' : '认识配料分工'}}</view>
+    <view class="lesson-title">{{article.title}}</view>
+    <view class="lesson-lead">{{article.lead}}</view>
+    <image class="lesson-character" src="{{topic === 1 ? '/assets/lessons/name.png' : '/assets/lessons/role.png'}}" mode="aspectFit" aria-label="{{topic === 1 ? '饼干小侦探拿放大镜思考' : '饼干小侦探指着配料卡讲解'}}"/>
+  </view>
+  <view class="lesson-summary">{{article.summary}}</view>
+  <view class="lesson-flow"><view wx:for="{{article.labels}}" wx:key="*this">{{item}}</view></view>
+  <view class="lesson-part" wx:for="{{article.sections}}" wx:key="index">
+    <view class="part-title">{{item[0]}}</view>
+    <view class="part-copy">{{item[1]}}</view>
+    <view class="lesson-example">{{item[2]}}</view>
+  </view>
+  <view class="lesson-refs">
+    <view class="refs-toggle" bindtap="toggleReferences" role="button" aria-expanded="{{referencesOpen}}">{{referencesOpen ? '▾' : '▸'}} 资料来源与阅读说明</view>
+    <view wx:if="{{referencesOpen}}">
+      <view class="reference-link" bindtap="source" data-url="https://www.who.int/news-room/fact-sheets/detail/food-additives" role="button">WHO · Food additives ↗</view>
+      <view class="reference-link" bindtap="source" data-url="https://www.fda.gov/food/food-additives-and-gras-ingredients-information-consumers/types-food-ingredients" role="button">FDA · Types of Food Ingredients ↗</view>
+      <view>仅作一般知识说明，不代表来源机构认可某件商品。不同地区的具体使用要求需另查当地标准。</view>
+    </view>
+  </view>
+  <view class="lesson-endnote">常见用途不等于营养评价；这些知识不能代替商品检测或个体判断。</view>
+  <button class="lesson-next" bindtap="next">{{article.next}}</button>
+</view>
