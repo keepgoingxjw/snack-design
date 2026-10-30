@@ -31,7 +31,13 @@ test('401重新登录一次，400不重试', async () => {
   wx.request = options => options.success({ statusCode: 400, data: { message: '原文错误' } })
   await assert.rejects(api.request('/records', 'POST', {}), /原文错误/)
 })
-test('网络错误提供启动后端的提示', async () => {
-  wx.request = options => options.fail({})
-  await assert.rejects(api.request('/records'), /Java 服务已启动/)
+test('网络失败显示指定短文案，并保留微信域名校验原因供排查', async () => {
+  wx.request = options => options.fail({ errMsg: 'request:fail url not in domain list' })
+  await assert.rejects(api.request('/records'), error => {
+    assert.equal(error.message, '网络错误，请稍后重试')
+    assert.equal(error.code, 'NETWORK_ERROR')
+    assert.equal(error.networkReason, 'domain_not_allowed')
+    assert.match(error.nativeMessage, /domain list/)
+    return true
+  })
 })

@@ -22,11 +22,17 @@ logging:
   file:
     name: logs/backend.log
 server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force-response: true
   port: ${PORT:8080}
   error:
     include-message: never
 app:
   ocr:
+    engine: ${OCR_ENGINE:rapidocr}
     data-path: ${OCR_DATA_PATH:data/tessdata}
   ai:
     provider: ${AI_PROVIDER:deepseek}

@@ -13,7 +13,8 @@ function editor() {
 beforeEach(() => {
   const values = new Map()
   global.wx = { getStorageSync: key => values.get(key), setStorageSync: (key, value) => values.set(key, value), removeStorageSync: key => values.delete(key) }
-  global.getApp = () => ({ globalData: { imagePath: '/tmp/captured.jpg' } })
+  const app = { globalData: { imagePath: '/tmp/captured.jpg' } }
+  global.getApp = () => app
 })
 test('拍摄图片自动识别并回填原文，不自动提交配料分析', async () => {
   let calls = 0
@@ -24,6 +25,18 @@ test('拍摄图片自动识别并回填原文，不自动提交配料分析', as
   assert.equal(page.data.raw, '配料表：燕麦片、小麦粉、乳粉')
   assert.equal(page.data.recognizing, false)
   assert.equal(page.data.saving, false)
+  assert.equal(getApp().globalData.imagePath, '')
+  const reopened = editor(); await reopened.onLoad({ photo: '1' })
+  assert.equal(calls, 1)
+  assert.equal(reopened.data.raw, '')
+})
+test('没有本次拍摄照片时不执行OCR，也不显示识别失败', async () => {
+  getApp().globalData.imagePath = ''
+  ocr.recognize = async () => assert.fail('没拍照片不能识别')
+  const page = editor(); await page.onLoad({ photo: '1' }); await page.recognize()
+  assert.equal(page.data.raw, '')
+  assert.equal(page.data.error, '')
+  assert.equal(page.data.recognizing, false)
 })
 test('识别失败可继续手动输入，不填充虚构文字', async () => {
   ocr.recognize = async () => { throw new Error('OCR服务暂不可用') }
@@ -33,6 +46,20 @@ test('识别失败可继续手动输入，不填充虚构文字', async () => {
   assert.match(page.data.error, /手动/)
   page.input({ detail: { value: '燕麦片' } })
   assert.equal(page.data.raw, '燕麦片')
+})
+test('识别到生产信息但没有配料标题时提示核对拍摄区域，保留原文', async () => {
+  ocr.recognize = async () => ({ text: '生产日期：见包装\n保质期：15个月' })
+  const page = editor(); await page.onLoad({ photo: '1' })
+  assert.equal(page.data.raw, '生产日期：见包装\n保质期：15个月')
+  assert.match(page.data.error, /完整配料表/)
+  assert.equal(page.data.saving, false)
+})
+test('OCR遇到网络错误只显示指定文案，不追加技术或手动输入描述', async () => {
+  ocr.recognize = async () => { const error = new Error('网络错误，请稍后重试'); error.code = 'NETWORK_ERROR'; throw error }
+  const page = editor(); await page.onLoad({ photo: '1' })
+  assert.equal(page.data.error, '网络错误，请稍后重试')
+  assert.equal(page.data.recognizing, false)
+  assert.equal(page.data.raw, '')
 })
 test('识别失败后直接退出不会清空之前的文字草稿', async () => {
   const store = require('../utils/storage')

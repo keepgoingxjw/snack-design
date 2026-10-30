@@ -15,9 +15,9 @@ import static org.springframework.http.HttpStatus.*;
 @Service
 public class OcrService {
     static final int MAX_BYTES = 4 * 1024 * 1024;
-    private final TesseractOcrEngine engine;
+    private final LocalOcrEngine engine;
     private final Semaphore slots = new Semaphore(2);
-    public OcrService(TesseractOcrEngine engine) { this.engine=engine; }
+    public OcrService(LocalOcrEngine engine) { this.engine=engine; }
 
     public String recognize(byte[] bytes) {
         imageType(bytes);
@@ -30,7 +30,7 @@ public class OcrService {
             if (text.strip().length()>5000) throw new ResponseStatusException(UNPROCESSABLE_ENTITY,"识别文字超过5000字，请只拍配料区域");
             return text.strip();
         } catch (ResponseStatusException e) { throw e; }
-        catch (LinkageError e) { throw new ResponseStatusException(SERVICE_UNAVAILABLE,"本地OCR运行库未就绪，请检查Tesseract依赖；可先手动输入"); }
+        catch (LinkageError e) { throw new ResponseStatusException(SERVICE_UNAVAILABLE,"本地OCR运行库未就绪，请检查OCR依赖；可先手动输入"); }
         catch (Exception e) { throw new ResponseStatusException(UNPROCESSABLE_ENTITY,"OCR文字识别未完成，请拍清配料区域或对照照片手动输入"); }
         finally { if(image!=null)image.flush(); slots.release(); }
     }

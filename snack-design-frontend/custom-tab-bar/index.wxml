@@ -1,5 +1,5 @@
 <view class="tabbar">
-  <view wx:for="{{items}}" wx:key="id" class="tab-item {{selected === item.path || (item.id === 'scan' && scanning) ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="tap" role="button" aria-label="{{item.id === 'scan' ? '打开扫码器' : item.label}}">
+  <view wx:for="{{items}}" wx:key="id" class="tab-item {{selected === item.path || (item.id === 'scan' && scanning) ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="tap" role="button" aria-label="{{item.id === 'scan' ? '打开摄像头拍摄配料表' : item.label}}">
     <image class="tab-icon" src="{{selected === item.path || (item.id === 'scan' && scanning) ? item.activeIcon : item.icon}}" mode="aspectFit"/>
     <text class="tab-label">{{item.label}}</text>
   </view>

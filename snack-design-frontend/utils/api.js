@@ -1,6 +1,21 @@
 const config = require('./config')
 const SESSION_KEY = 'shiyoushu.api.session.v1:' + config.baseUrl + ':' + config.authMode
 let loginTask = null
+function networkError(cause, stage) {
+  const nativeMessage = cause && typeof cause.errMsg === 'string' ? cause.errMsg.slice(0, 512) : ''
+  let reason = 'unknown'
+  if (/not in domain list|domain.*not allowed|域名.*不合法/i.test(nativeMessage)) reason = 'domain_not_allowed'
+  else if (/cleartext|app transport security|insecure http/i.test(nativeMessage)) reason = 'insecure_http_blocked'
+  else if (/local network|本地网络|permission|privacy|权限/i.test(nativeMessage)) reason = 'permission_denied'
+  else if (/timeout|timed out|超时/i.test(nativeMessage)) reason = 'timeout'
+  else if (/ECONNREFUSED|connection refused|连接被拒绝/i.test(nativeMessage)) reason = 'connection_refused'
+  const error = new Error('网络错误，请稍后重试')
+  error.code = 'NETWORK_ERROR'
+  error.networkReason = reason
+  error.nativeMessage = nativeMessage // 仅供本地断点查看，不展示、存储或上传原生错误内容。
+  console.warn('[network-error]', { stage, reason })
+  return error
+}
 function send(path, method, data, token) {
   return new Promise((resolve, reject) => {
     wx.request({
@@ -13,7 +28,7 @@ function send(path, method, data, token) {
           error.status = res.statusCode; reject(error)
         }
       },
-      fail: () => reject(new Error('无法连接后端，请确认 Java 服务已启动，并检查接口地址和网络设置'))
+      fail: cause => reject(networkError(cause, path.startsWith('/auth/') ? 'session' : 'request'))
     })
   })
 }
@@ -67,7 +82,7 @@ function upload(path, filePath) {
           error.status = res.statusCode; reject(error)
         }
       },
-      fail: () => reject(new Error('图片上传失败或识别超时，请检查网络，也可对照照片手动输入'))
+      fail: cause => reject(networkError(cause, 'upload'))
     })
   }))
 }

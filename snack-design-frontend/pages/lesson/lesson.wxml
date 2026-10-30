@@ -12,14 +12,6 @@
     <view class="part-copy">{{item[1]}}</view>
     <view class="lesson-example">{{item[2]}}</view>
   </view>
-  <view class="lesson-refs">
-    <view class="refs-toggle" bindtap="toggleReferences" role="button" aria-expanded="{{referencesOpen}}">{{referencesOpen ? '▾' : '▸'}} 资料来源与阅读说明</view>
-    <view wx:if="{{referencesOpen}}">
-      <view class="reference-link" bindtap="source" data-url="https://www.who.int/news-room/fact-sheets/detail/food-additives" role="button">WHO · Food additives ↗</view>
-      <view class="reference-link" bindtap="source" data-url="https://www.fda.gov/food/food-additives-and-gras-ingredients-information-consumers/types-food-ingredients" role="button">FDA · Types of Food Ingredients ↗</view>
-      <view>仅作一般知识说明，不代表来源机构认可某件商品。不同地区的具体使用要求需另查当地标准。</view>
-    </view>
-  </view>
-  <view class="lesson-endnote">常见用途不等于营养评价；这些知识不能代替商品检测或个体判断。</view>
-  <button class="lesson-next" bindtap="next">{{article.next}}</button>
+  <button class="primary lesson-next" hover-class="lesson-next-pressed" hover-start-time="0" hover-stay-time="120" bindtap="next">{{article.next}}</button>
+  <button class="secondary lesson-home" hover-class="lesson-home-pressed" hover-start-time="0" hover-stay-time="120" bindtap="home">返回首页</button>
 </view>

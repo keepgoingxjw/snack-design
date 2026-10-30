@@ -1,7 +1,7 @@
 <view class="page" wx:if="{{record}}">
   <view class="result-head"><view><view class="heading">{{demoMode ? demoTitle : '每种配料，分开看明白'}}</view><text class="small">{{record.kind}} · {{count}} 项配料</text></view><image class="logo" src="/assets/logo.png" mode="aspectFit"/></view>
   <view wx:if="{{recommendation}}" class="recommendation {{recommendation.action}}">
-    <view class="advice-kicker">最后建议 · {{demoMode ? '预设演示建议' : '条件性指导，非安全判定'}}</view>
+    <view class="advice-kicker">{{demoMode ? '最后建议' : '最后建议 · 条件性指导，非安全判定'}}</view>
     <view class="advice-title">{{recommendation.title}}</view>
     <view class="advice-audience">适用人群：{{recommendation.audience}}</view>
     <view class="advice-reason">{{recommendation.reason}}</view>

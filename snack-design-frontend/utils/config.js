@@ -1,6 +1,6 @@
-// 本地开发者工具使用。真机的 127.0.0.1 指手机自身，不能访问电脑。
-// 正式上线：改为已配置 request 合法域名的 HTTPS 地址，并将 authMode 改为 wechat。
+// 手机联调：手机与电脑需在同一局域网；当前地址为电脑的WLAN IPv4。
+// 换网络/IP后需同步更新；正式上线使用合法HTTPS域名和wechat登录，勿公开dev模式。
 module.exports = {
-  baseUrl: 'http://127.0.0.1:8080/api',
+  baseUrl: 'http://192.168.205.236:8080/api',
   authMode: 'dev'
 }

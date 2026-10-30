@@ -1,4 +1,4 @@
-// 中央Tab的扫码动作与页面导航分离。只读取内容，不自动打开二维码链接或冒充商品查询。
+// 仅用于明确的商品条码入口。拍照OCR走camera.js，不用条码/二维码接口识别图片文字。
 let active = null
 function openScanner() {
   if (active) return active

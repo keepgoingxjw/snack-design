@@ -28,6 +28,19 @@ test('拍照入口只调用传统OCR专用接口，不误调用旧的云端识�
   assert.equal((await ocr.recognize('/tmp/photo.jpg')).text, '燕麦片')
   assert.equal(route, '/ocr/tesseract')
 })
+test('登录会话网络失败会在图片上传前停止，不误报OCR故障', async () => {
+  let uploads = 0
+  wx.request = options => options.fail({ errMsg: 'request:fail url not in domain list' })
+  wx.uploadFile = () => { uploads++ }
+  await assert.rejects(api.upload('/ocr/tesseract', '/tmp/photo.jpg'), error => error.message === '网络错误，请稍后重试' && error.networkReason === 'domain_not_allowed')
+  assert.equal(uploads, 0)
+})
+test('图片上传网络失败显示同一短文案，不自动重复上传', async () => {
+  let uploads = 0
+  wx.uploadFile = options => { uploads++; options.fail({ errMsg: 'uploadFile:fail timeout' }) }
+  await assert.rejects(api.upload('/ocr/tesseract', '/tmp/photo.jpg'), error => error.message === '网络错误，请稍后重试' && error.networkReason === 'timeout')
+  assert.equal(uploads, 1)
+})
 test('上游OCR错误不重新登录或重复上传，只有用户会话401会重登', async () => {
   let uploads = 0
   wx.uploadFile = options => { uploads++; options.success({ statusCode: 502, data: JSON.stringify({ message: '识别服务暂不可用' }) }) }

@@ -31,6 +31,19 @@ class ApiIntegrationTest {
         mvc.perform(get("/api/records")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/records").header("Authorization", "Bearer invalid")).andExpect(status().isUnauthorized());
     }
+    @Test void jsonResponsesDeclareUtf8ForMobileBrowsers() throws Exception {
+        var health=mvc.perform(get("/api/health")).andExpect(status().isOk()).andReturn().getResponse();
+        assertTrue(health.getContentType().toLowerCase(java.util.Locale.ROOT).contains("charset=utf-8"),health.getContentType());
+        String auth=login();
+        var saved=mvc.perform(post("/api/records").header("Authorization",auth).contentType(APPLICATION_JSON)
+            .content(json.writeValueAsString(Map.of("raw","苯甲酸钠、柠檬黄","kind","手动输入"))))
+            .andExpect(status().isOk()).andReturn().getResponse();
+        assertEquals("UTF-8",saved.getCharacterEncoding());
+        assertTrue(saved.getContentAsString().contains("苯甲酸钠、柠檬黄"));
+        var error=mvc.perform(get("/api/records")).andExpect(status().isUnauthorized()).andReturn().getResponse();
+        assertTrue(error.getContentType().toLowerCase(java.util.Locale.ROOT).contains("charset=utf-8"));
+        assertTrue(error.getContentAsString().contains("登录"));
+    }
     @Test void recordsArePersistedUpdatedAndIsolated() throws Exception {
         String alice = login(), bob = login();
         String response = mvc.perform(post("/api/records").header("Authorization", alice).contentType(APPLICATION_JSON)

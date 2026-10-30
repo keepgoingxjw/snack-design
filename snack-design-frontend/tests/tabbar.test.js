@@ -13,12 +13,15 @@ function loadTabBar() {
 beforeEach(() => {
   scans = 0; switches = []
   global.getCurrentPages = () => [{ route: 'pages/history/history' }]
+  const app = { globalData: { imagePath: '' } }
+  global.getApp = () => app
   global.wx = {
-    scanCode: options => { scans++; options.fail({ errMsg: 'scanCode:fail cancel' }) },
+    chooseMedia: options => { scans++; options.fail({ errMsg: 'chooseMedia:fail cancel' }) },
+    scanCode: () => assert.fail('中间Tab不应再调用条码扫码器'),
     switchTab: options => { switches.push(options.url); if (options.success) options.success() }
   }
 })
-test('点中间扫描直接调用原生扫码器，不切换页面，取消后保持原Tab', async () => {
+test('点中间扫描直接打开拍摄相机，取消后不跳页且保持原Tab', async () => {
   const tab = loadTabBar()
   tab.syncSelection()
   await tab.tap({ currentTarget: { dataset: { id: 'scan' } } })

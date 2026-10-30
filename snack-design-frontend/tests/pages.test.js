@@ -174,6 +174,17 @@ test('最后建议展示条件与人群，旧记录不被判定为吃一点没�
   page.display({ id: 'running', status: 'running', createdAt: Date.now(), findings: [] })
   assert.equal(page.data.recommendation, null)
 })
+test('移除食品类别后不恢复旧草稿类别，也不在解析地址提交类别', async () => {
+  store.saveDraft({ raw: '燕麦片', kind: '手动输入', recordId: '', foodCategory: '旧类别' })
+  const page = loadPage('../pages/edit/edit')
+  await page.onLoad({ draft: '1' })
+  assert.equal(Object.hasOwn(page.data, 'foodCategory'), false)
+  let url = ''
+  wx.redirectTo = options => { url = options.url }
+  await page.submit()
+  assert.match(url, /auto=1/)
+  assert.doesNotMatch(url, /category=/)
+})
 test('上传失败保留原文和草稿，并允许重试', async () => {
   const page = loadPage('../pages/edit/edit')
   await page.onLoad({})

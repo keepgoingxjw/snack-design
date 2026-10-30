@@ -9,6 +9,17 @@ Page({
     this.showTopic(1 - this.data.topic)
     wx.pageScrollTo({ scrollTop: 0, duration: 0 })
   },
+  home() {
+    const url = '/pages/home/home'
+    wx.switchTab({
+      url,
+      success: () => wx.pageScrollTo({ scrollTop: 0, duration: 0 }),
+      fail: () => wx.reLaunch({
+        url,
+        fail: () => wx.showToast({ title: '返回首页失败，请稍后重试', icon: 'none' })
+      })
+    })
+  },
   toggleReferences() { this.setData({ referencesOpen: !this.data.referencesOpen }) },
   source(e) {
     wx.setClipboardData({ data: e.currentTarget.dataset.url, success: () => wx.showToast({ title: '来源链接已复制', icon: 'none' }) })

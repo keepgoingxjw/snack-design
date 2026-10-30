@@ -9,4 +9,6 @@
 .lesson-part{padding:46rpx 0;border-top:2rpx solid #dfd4e8}.part-title{font-size:38rpx;margin:0 0 24rpx;font-weight:700}.part-copy{color:#61566d;margin:16rpx 0 28rpx}
 .lesson-example{font-size:26rpx;line-height:1.8;background:#f5efdb;border-radius:24rpx;padding:24rpx 28rpx;color:#77613d}
 .lesson-refs{margin:50rpx 0 16rpx;font-size:24rpx;color:#776487}.refs-toggle{padding:16rpx 0;min-height:88rpx}.reference-link{color:#725294;padding:14rpx 0;overflow-wrap:break-word}
-.lesson-endnote{font-size:24rpx;color:#81748c;margin:16rpx 0 28rpx}.lesson-next{display:block;width:100%;padding:24rpx 30rpx;border:0;border-radius:28rpx;background:#725294;color:#fff;font-size:30rpx;min-height:92rpx}
+.lesson-endnote{font-size:24rpx;color:#81748c;margin:16rpx 0 28rpx}.lesson-page .lesson-next,.lesson-page .lesson-home{display:block;width:100%;max-width:none;box-sizing:border-box;margin:22rpx 0 0;transition:transform .1s ease,background-color .1s ease,box-shadow .1s ease}
+.lesson-page .lesson-next-pressed{transform:translateY(4rpx);background:#634581;box-shadow:0 2rpx 0 #573b76}
+.lesson-page .lesson-home-pressed{transform:translateY(2rpx);background:#f0e8f7;border-color:#c9b7dc;box-shadow:inset 0 2rpx 4rpx #72529414}

@@ -23,7 +23,7 @@ class OcrNativeTest {
         g.drawString("INGREDIENTS OATS FLOUR SUGAR",35,160);g.dispose();
         Path fixture=Path.of("target/ocr-native-sample.png");Files.createDirectories(fixture.getParent());ImageIO.write(image,"png",fixture.toFile());
         var data=new java.io.ByteArrayOutputStream();ImageIO.write(image,"png",data);image.flush();
-        String recognized=new OcrService(new TesseractOcrEngine("data/tessdata")).recognize(data.toByteArray());
+        String recognized=new OcrService(new RapidOcrEngine()).recognize(data.toByteArray());
         String compact=recognized.replaceAll("\\s+","");
         assertTrue(compact.contains("燕麦片"),recognized);
         assertTrue(compact.contains("小麦粉"),recognized);

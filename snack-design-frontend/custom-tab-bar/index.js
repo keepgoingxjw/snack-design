@@ -1,4 +1,4 @@
-const { openScanner } = require('../utils/scanner')
+const { capturePhoto } = require('../utils/camera')
 Component({
   data: {
     selected: 'pages/home/home', scanning: false,
@@ -22,7 +22,7 @@ Component({
       if (item.id === 'scan') {
         if (this.data.scanning) return
         this.setData({ scanning: true })
-        try { await openScanner() } finally { this.setData({ scanning: false }) }
+        try { await capturePhoto() } finally { this.setData({ scanning: false }) }
         return
       }
       if (item.path === this.data.selected) return

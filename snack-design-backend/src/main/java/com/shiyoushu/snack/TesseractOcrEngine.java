@@ -13,7 +13,8 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 /** Java后端本地传统OCR。没有HTTP客户端、API Key或AI模型依赖。 */
 @Component
-public class TesseractOcrEngine {
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="app.ocr.engine", havingValue="tesseract")
+public class TesseractOcrEngine implements LocalOcrEngine {
     private final Path dataPath;
     private final String nativeDataPath;
     public TesseractOcrEngine(@Value("${app.ocr.data-path:data/tessdata}") String dataPath) {
